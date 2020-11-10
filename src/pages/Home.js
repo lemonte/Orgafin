@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react'
 import NavBar from '../Components/Navbar'
 import Sidenav from '../Components/SIde_NavBar'
 import M from "materialize-css";
-import { useHistory } from "react-router-dom";
 import Moeda from '../Components/Moeda';
 
 
