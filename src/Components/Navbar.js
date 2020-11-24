@@ -15,7 +15,7 @@ function NavBar(props) {
                     <nav className="nav-extended blue darken-4" >
                         <div className="nav-wrapper"  >
                         <a href="#" data-target="slide-out" class="sidenav-trigger"><i class="material-icons">menu</i></a>
-                            <a className="brand-logo blue darken-4 center" onClick={() => history.push("/display/produtores")}>Orgafin</a>
+                            <a className="brand-logo blue darken-4 center" onClick={() => history.push("/home")}>Orgafin</a>
                         </div>
                     </nav>
                 </div>

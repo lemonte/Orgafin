@@ -16,7 +16,21 @@ function SidenavLogin(props) {
     async function create_account(){
         if(email == "") return M.toast({html: 'Preencha o email'})
         if(password == "") return M.toast({html: 'Preencha a senha'})
-        return console.log("creada")
+       return  cadastrar();
+        
+       
+    }
+    
+    async function cadastrar(){
+   
+        fetch("http://orgafin.orgfree.com/DAO/api/v1/usuarios/cadastrar/", {
+            method: "POST",
+            body: JSON.stringify({ "email": email, "senha":password })
+          })
+            .then(response => console.log(response.json))
+            .then(data =>  M.toast({html: 'Cadastro realizado'})
+         );
+    
     }
 
     return (
@@ -26,16 +40,15 @@ function SidenavLogin(props) {
                 <div class="user-view blue darken-4">
                     <div class="background">
                     </div>
-                    <a href="#user" ><img class="circle" src={"https://blog.nexxera.com/wp-content/uploads/2015/09/ThinkstockPhotos-477498910.png"} /></a>
-                    <a href="#name"><span class="white-text name">Orgafin</span></a>
-                    <a href="#email"><span class="white-text email">Orgafin@gmail.com</span></a>
+                    <a href="" ><img class="circle" src={"https://blog.nexxera.com/wp-content/uploads/2015/09/ThinkstockPhotos-477498910.png"} /></a>
+                    <a href=""><span class="white-text name">Orgafin</span></a>
+                    <a href=""><span class="white-text email">Orgafin@gmail.com</span></a>
                 </div>
             </li>
             <div class="login forms">
                 <div class="row">
                     <div class="col s12 m12 l12">
                         <div class="card hoverable" >
-
                         <div class="center card-content logo">
                                 <img src={"https://blog.nexxera.com/wp-content/uploads/2015/09/ThinkstockPhotos-477498910.png"} width="200px" />
                             </div>
@@ -46,7 +59,6 @@ function SidenavLogin(props) {
                                 <div class="input-field col s12">
                                     <input
                                         class="input-group form-control"
-                                        v-model="email"
                                         placeholder="email@email.com"
                                         type="email"
                                         value={email}
@@ -60,7 +72,6 @@ function SidenavLogin(props) {
 
                                     <input
                                         class="input-group form-control"
-                                        v-model="senha"
                                         type="password"
                                         placeholder=""
                                         value={password}
