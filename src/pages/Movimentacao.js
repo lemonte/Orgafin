@@ -12,7 +12,9 @@ class Movimentacao extends Component {
         this.state = {
             lista_ordens : [],
             item_create : {},
-            item_update : {}
+            item_update : {},
+            items:{},
+            categorias:{}
         }
     }
 
@@ -30,6 +32,7 @@ class Movimentacao extends Component {
             M.FormSelect.init(select, {});
           });
          await this.mostrarMovimentacao()
+         await this.mostrarCategorias();
     }
 
 
@@ -44,24 +47,95 @@ class Movimentacao extends Component {
 
 
     async mostrarMovimentacao() {
-        const data = await get_data('movimentacoes/mostrar')
-        return this.setState({ lista_ordens: data.data.dados })
+        const requestOptions = {
+            method: 'GET',
+        }
+        fetch('http://orgafin.orgfree.com/DAO/api/v1/movimentacoes/mostrar/', requestOptions)
+            .then(response => response.json())
+            .then(data=> {
+                console.log(data);
+                this.items =  data.dados;
+                return this.setState({ lista_ordens: data.dados })
+            }).catch(
+            err=> {
+              M.toast({html: "um erro ocorreu: "+err});
+              console.log(err);
+            }
+            )
     }
 
 
 
 
-     create_categorie() {
+     create_movimentacao() {
          const { item_create } = this.state
         if (isEmpty(item_create)) return M.toast({ html: 'Preencha os campos' });
         if (isEmpty(item_create.nome) ) return M.toast({ html: 'Preencha o nome' });
         if (isEmpty(item_create.valor)) return M.toast({ html: 'Preencha o valor' });
         if (isEmpty(item_create.data)) return M.toast({ html: 'Selecione a data' })
         if (isEmpty(item_create.categoria)) return M.toast({ html: 'Selecione a categoria' });
-        M.toast({ html: 'Item cadastrado' })
+        
+        const requestOptions = {
+            method: 'POST',
+            body: JSON.stringify({ "nomeMov": item_create.nome, "tipoMov":item_create.categoria, "valorMov":item_create.valor ,"dataMov":item_create.data})
+        }
+        fetch('http://orgafin.orgfree.com/DAO/api/v1/movimentacoes/cadastrar/', requestOptions)
+            .then(response => response.json())
+            .then(data=> {
+                console.log(data);
+                M.toast({ html: data.dados})
+                this.mostrarMovimentacao()
+
+            }).catch(
+            err=> {
+              M.toast({html: err});
+              console.log(err);
+            }
+            )
         this.setState({ item_create: {} })
         this.mostrarMovimentacao();
     }
+
+    async mostrarCategorias() {
+        const requestOptions = {
+            method: 'GET',
+        }
+        fetch('http://orgafin.orgfree.com/DAO/api/v1/categorias/mostrar/', requestOptions)
+            .then(response => response.json())
+            .then(data=> {
+                console.log(data);
+                this.categorias =  data.dados;
+                return this.setState({ lista_ordens: data.dados })
+
+
+            }).catch(
+            err=> {
+              M.toast({html: err});
+              console.log(err);
+            }
+            )
+
+    }
+    categoria_dropDown(){
+
+        if(this.categorias){
+            return(
+                <div>                 
+                         <select >
+                         <option value={0} disabled selected>selecione uma categoria</option>
+                             {this.categorias.map((item, id) =>{
+                               return(<option value={id} disabled selected>{item.nome}</option>)
+                            })}
+                           </select>
+                       
+                    
+                </div>
+            );
+        }else{
+            this.mostrarMovimentacao();
+        }
+        
+        }
 
     salve_update(){
         const { item_update } = this.state
@@ -74,33 +148,46 @@ class Movimentacao extends Component {
         M.toast({ html: 'Item Atualizado' })
         close_modal('modal1', this)
         this.mostrarMovimentacao();
+        this.mostrarCategorias();
     }
     
-     card(item) {
-        return (
-            <div key={item.id} onClick={() => {
-                this.setState({ item_update: item })
-                open_modal('modal1')}} class="card white darken-1 hoverable modal-trigger">
-                <div class="card-content black-text ">
-                    <span class="card-title center">{item.nome.toUpperCase()}</span>
-                    <div class="divider" />
-                    <div class="row">
-                        <div class="col s4">Categoria</div>
-                        <div class="col s4">Valor</div>
-                        <div class="col s4">Data</div>
-                    </div>
-                    <div class="row">
-                        <div class="col s4">{"teste"}</div>
-                        <div class="col s4">{item.valor ? Moeda(Number(item.valor)) : "RS: 0.00"}</div>
-                        <div type="date" class="col s4">{item.data ? convert_data(item.data) : "XX/XX/XXXX"}</div>
-                    </div>
+     card() {
+        if(this.items){
+            return(
+                <div>
+                    {
+                       
+                       this.items.map((item, id) =>{
+                        return (
+                            <div key={id} onClick={() => {
+                                this.setState({ item_update: item })
+                                open_modal('modal1')}} class="card white darken-1 hoverable">
+                            <div class="card-content black-text ">
+                                <span class="card-title">{item.nome ? item.nome : "Sem nome"}</span>
+                                <div class="divider" />
+                                <div class="row">
+                                    <div class="col s6">Tipo</div>
+                                    <div class="col s6">Categoria</div>
+                                </div>
+                                <div class="row">
+                                <div class="col s6">{item.nome ? item.nome : "TIpo não definido"}</div>
+                                    <div class="col s6">{item.tipo ? item.tipo : "TIpo não definido"}</div>
+                                </div>
+                            </div>
+                            <div class="card-action">
+                                <a href="#" class="red-text" >Deletar</a>
+                                <a href="#" class="blue-text">Editar</a>
+                            </div>
+                        </div>
+                        )
+                       })
+                    }
                 </div>
-                <div class="card-action">
-                    <a href="#" class="red-text" >Deletar</a>
-                    <a href="#" class="blue-text">Editar</a>
-                </div>
-            </div>
-        )
+            );
+        }else{
+            this.mostrarMovimentacao();
+            this.mostrarCategorias();
+        }
     }
   
      modal() {
@@ -226,17 +313,7 @@ class Movimentacao extends Component {
                                 <label class="active" for="last_name" >Data</label>
                             </div>
                             <div class="input-field col s12 col s12 m3 l3">
-                                <select 
-                                 value={item_create.categoria? item_create.categoria : ""}
-                                onChange={e => {
-                                    item.categoria = e.target.value;
-                                    this.setState({ item_create: item })
-                                }}>
-                                    <option value="" disabled selected>Selecione a categoria</option>
-                                    <option value="1">Categoria 1</option>
-                                    <option value="2">Categoria 2</option>
-                                    <option value="3">Categoria 3</option>
-                                </select>
+                                {this.categoria_dropDown()}
                                 <label>Movimentação</label>
                             </div>
                         </div>
@@ -245,7 +322,7 @@ class Movimentacao extends Component {
 
 
                 <div class=" card-action center">
-                    <a onClick={() => this.create_categorie()}>Cadastrar</a>
+                    <a onClick={() => this.create_movimentacao()}>Cadastrar</a>
                 </div>
 
             </div>
@@ -264,9 +341,9 @@ class Movimentacao extends Component {
                     <div class="col s12 m3 l3" />
                     <div class="col s12 m6">
                         {this.forms()}
-                        {this.state.lista_ordens.map((item) => {
-                            return this.card(item);
-                        })}
+                        { 
+                         this.card()
+                        }
                         {this.modal()}
                     </div>
                 </div>

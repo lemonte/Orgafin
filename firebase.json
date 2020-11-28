@@ -1,0 +1,11 @@
+{
+  "hosting": {
+    "site": "orgafin",
+    "public": "./deploy",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ]
+  }
+}

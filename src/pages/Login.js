@@ -21,12 +21,25 @@ async function login(){
   if(email == "") return M.toast({html: 'Preencha o email'})
   if(password == "") return M.toast({html: 'Preencha a senha'})
   localStorage.setItem('email', email)
-  const data = await update_data('usuarios/logar/', { "email": email, "senha":password })
- // return console.log(data.data.dados)
-  if(data.status == 200){
-    M.toast({ html: "Usuário logado com sucesso"})
-    return history.push("/home");
-}
+  var myHeaders = new Headers();
+  const requestOptions = {
+      method: 'POST',
+      body: JSON.stringify({ "email": email, "senha":password })
+  }
+  fetch('http://orgafin.orgfree.com/DAO/api/v1/usuarios/logar/', requestOptions)
+      .then(response => response.json())
+      .then(data=> {
+        M.toast({html: data.dados});
+        if(data.dados == "Logado com sucesso"){
+            console.log(data.dados)
+            return history.push("/home");
+        }
+      }).catch(
+      err=> {
+        M.toast({html: "E-mail e senha errados"});
+        console.log(err);
+      }
+      )
 
   //return history.push("/home")
 }

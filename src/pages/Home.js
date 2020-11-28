@@ -34,9 +34,9 @@ class Painel extends Component {
 
 
     async movimentacoes() {
-        const data = await get_data('movimentacoes/mostrar')
-        this.setState({ movimentacoes: data.data.dados })
-        return this.rotina_grafico(data.data.dados)
+        const data = await get_data('movimentacoes/mostrar') 
+        this.setState({ movimentacoes: data.data ? data.data.dados : [] })
+        return this.rotina_grafico(data.data ? data.data.dados : [])
     }
 
     componentDidMount() {

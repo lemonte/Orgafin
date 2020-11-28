@@ -26,7 +26,7 @@ function Sidenav(props) {
 
                 <li><a onClick={() => history.push('./home')}><i class="material-icons">dashboard</i>Painel</a></li>
 
-                <li><a  onClick={() => history.push('./movimentacao')}><i class="material-icons">receipt</i>Pedidos</a></li>
+                <li><a  onClick={() => history.push('./movimentacao')}><i class="material-icons">receipt</i>movimentação</a></li>
                 <li><a onClick={() => history.push('./categorias')} ><i class="material-icons">sticky_note_2</i>Categorias</a></li>
 
                 <li><div class="divider"></div></li>

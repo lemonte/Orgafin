@@ -12,7 +12,8 @@ class Categoria extends Component {
         super(props);
         this.state = {
             item_update : {},
-            item_create : {}
+            item_create : {},
+            items:{}
         }
     }
 
@@ -34,8 +35,24 @@ class Categoria extends Component {
     }
 
     async mostrarMovimentacao() {
-        const data = await get_data('movimentacoes/mostrar')
-        return this.setState({ lista_ordens: data.data.dados })
+        const requestOptions = {
+            method: 'GET',
+        }
+        fetch('http://orgafin.orgfree.com/DAO/api/v1/categorias/mostrar/', requestOptions)
+            .then(response => response.json())
+            .then(data=> {
+                console.log(data);
+                this.items =  data.dados;
+                return this.setState({ lista_ordens: data.dados })
+
+
+            }).catch(
+            err=> {
+              M.toast({html: err});
+              console.log(err);
+            }
+            )
+
     }
 
 
@@ -118,7 +135,25 @@ class Categoria extends Component {
         const { item_create } = this.state;
         if(isEmpty(item_create)) return M.toast({ html: "Preencha os campos"})
         if(isEmpty(item_create.tipo)) return M.toast({ html: "Selecione o tipo"})
-        M.toast({ html: "Cadastro realizado"})
+
+        const requestOptions = {
+            method: 'POST',
+            body: JSON.stringify({ "nomeMov": item_create.nome, "tipo":item_create.tipo })
+        }
+        fetch('http://orgafin.orgfree.com/DAO/api/v1/categorias/cadastrar/', requestOptions)
+            .then(response => response.json())
+            .then(data=> {
+                console.log(data);
+                M.toast({ html: data.dados})
+                this.mostrarMovimentacao()
+
+            }).catch(
+            err=> {
+              M.toast({html: err});
+              console.log(err);
+            }
+            )
+      
     }
 
 
@@ -183,29 +218,43 @@ class Categoria extends Component {
         )
     }
 
-card(item){
+card(){
+if(this.items){
     return(
-        <div key={item.id} onClick={() => {
-            this.setState({ item_update: item })
-            open_modal('modal1')}} class="card white darken-1 hoverable">
-        <div class="card-content black-text ">
-            <span class="card-title">{item.nome ? item.nome : "Sem nome"}</span>
-            <div class="divider" />
-            <div class="row">
-                <div class="col s6">Tipo</div>
-                <div class="col s6">Categoria</div>
-            </div>
-            <div class="row">
-            <div class="col s6">{item.nome ? item.nome : "TIpo não definido"}</div>
-                <div class="col s6">{item.tipo ? item.tipo : "TIpo não definido"}</div>
-            </div>
+        <div>
+            {
+               
+               this.items.map((item, id) =>{
+                return (
+                    <div key={id} onClick={() => {
+                        this.setState({ item_update: item })
+                        open_modal('modal1')}} class="card white darken-1 hoverable">
+                    <div class="card-content black-text ">
+                        <span class="card-title">{item.nome ? item.nome : "Sem nome"}</span>
+                        <div class="divider" />
+                        <div class="row">
+                            <div class="col s6">Tipo</div>
+                            <div class="col s6">Categoria</div>
+                        </div>
+                        <div class="row">
+                        <div class="col s6">{item.nome ? item.nome : "TIpo não definido"}</div>
+                            <div class="col s6">{item.tipo ? item.tipo : "TIpo não definido"}</div>
+                        </div>
+                    </div>
+                    <div class="card-action">
+                        <a href="#" class="red-text" >Deletar</a>
+                        <a href="#" class="blue-text">Editar</a>
+                    </div>
+                </div>
+                )
+               })
+            }
         </div>
-        <div class="card-action">
-            <a href="#" class="red-text" >Deletar</a>
-            <a href="#" class="blue-text">Editar</a>
-        </div>
-    </div>
-    )
+    );
+}else{
+    this.mostrarMovimentacao();
+}
+
 }
 
 
@@ -221,7 +270,7 @@ card(item){
                     <div class="col s12 m3 l3" />
                     <div class="col s12 m6">
                         {this.forms()}
-                        {this.card({id : 3,nome : 'joao', tipo: "saida"})}
+                        {this.card()}
                         {this.modal()}
                     </div>
                 </div>
